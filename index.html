@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Say Hi</title>
+    <style>
+        .container {
+            background: black;
+            color: white;
+            font-family: monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .button, .back-btn {
+            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            background: transparent;
+            color: white;
+            font-size: 40px;
+            display: inline-block;
+            text-align: center;
+            margin: 10px;
+        }
+        .hidden { display: none; }
+        .input-container { text-align: center; }
+        input {
+            background: black;
+            color: white;
+            border: none;
+            border-bottom: 2px solid white;
+            font-size: 40px;
+            text-align: center;
+            outline: none;
+            margin-bottom: 20px;
+            width: 300px;
+            padding: 10px;
+        }
+        footer {
+            position: absolute;
+            bottom: 10px;
+            text-align: center;
+            width: 100%;
+            font-size: 14px;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body class="container">
+
+    <div id="main-container">
+        <button id="sayHiBtn" class="button">→ say hi</button>
+    </div>
+
+    <div id="inputContainer" class="hidden">
+        <div class="input-container">
+            <input type="text" id="messageInput" placeholder="Farid Ardiansyah...">
+        </div>
+        <button id="sendBtn" class="button">Send</button>
+        <button id="backBtn" class="back-btn">Back</button>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD_htQZ1TClnXKZGRJ4izbMQ02y6V3aNAQ",
+            authDomain: "wawa44-58d1e.firebaseapp.com",
+            projectId: "wawa44-58d1e",
+            storageBucket: "wawa44-58d1e.appspot.com",
+            messagingSenderId: "836899520599",
+            appId: "1:836899520599:web:b346e4370ecfa9bb89e312",
+            measurementId: "G-8LMP7F4BE9"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const sayHiBtn = document.getElementById('sayHiBtn');
+        const inputContainer = document.getElementById('inputContainer');
+        const mainContainer = document.getElementById('main-container');
+        const sendBtn = document.getElementById('sendBtn');
+        const backBtn = document.getElementById('backBtn');
+        const messageInput = document.getElementById('messageInput');
+
+        async function checkSavedMessage() {
+            const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                sayHiBtn.textContent = 'thank you';
+            } else {
+                sayHiBtn.textContent = '→ say hi';
+            }
+        }
+        checkSavedMessage();
+
+        sayHiBtn.addEventListener('click', () => {
+            mainContainer.classList.add('hidden');
+            inputContainer.classList.remove('hidden');
+        });
+
+        backBtn.addEventListener('click', () => {
+            inputContainer.classList.add('hidden');
+            mainContainer.classList.remove('hidden');
+        });
+
+        sendBtn.addEventListener('click', async () => {
+            const message = messageInput.value.trim();
+            if (message !== '') {
+                await addDoc(collection(db, "messages"), {
+                    text: message,
+                    timestamp: new Date()
+                });
+                sayHiBtn.textContent = 'thank you';
+                inputContainer.classList.add('hidden');
+                mainContainer.classList.remove('hidden');
+            }
+        });
+    </script>
+
+</body>
+</html>
